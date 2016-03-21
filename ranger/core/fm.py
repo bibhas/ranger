@@ -377,6 +377,6 @@ class FM(Actions, SignalDispatcher):
                 # Don't save active tab since launching ranger in a directory changes the active tab
                 not_active_tabs = [self.tabs[i].path for i in self.tabs if i != self.current_tab]
                 open(tabs_file_path, 'w').write("\n".join(not_active_tabs))
-            else:
+            elif os.path.exists(tabs_file_path):
                 os.remove(tabs_file_path)
 
