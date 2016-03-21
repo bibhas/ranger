@@ -60,9 +60,13 @@ def main():
         arg.targets.insert(0, os.path.dirname(arg.selectfile))
 
     fm = FM()
-    if not arg.targets and os.path.exists(fm.confpath('tabs')):
-        arg.targets = open(fm.confpath('tabs'), 'r').readlines()
-        arg.targets.insert(0, '.')
+    if len(arg.targets) <= 1 and os.path.exists(fm.confpath('tabs')):
+        # if ranger is opened with no targets, put current directory as first tab
+        # otherwise, append the session tabs to it
+        if len(arg.targets) == 0:
+            arg.targets.insert(0, '.')
+
+        arg.targets = arg.targets + open(fm.confpath('tabs'), 'r').read().splitlines()
 
     targets = arg.targets or ['.']
     target = targets[0]
