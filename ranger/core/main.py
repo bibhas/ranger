@@ -59,6 +59,11 @@ def main():
         arg.selectfile = os.path.abspath(arg.selectfile)
         arg.targets.insert(0, os.path.dirname(arg.selectfile))
 
+    fm = FM()
+    if not arg.targets and os.path.exists(fm.confpath('tabs')):
+        arg.targets = open(fm.confpath('tabs'), 'r').readlines()
+        arg.targets.insert(0, '.')
+
     targets = arg.targets or ['.']
     target = targets[0]
     if arg.targets:  # COMPAT
