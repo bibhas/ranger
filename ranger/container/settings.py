@@ -56,6 +56,7 @@ ALLOWED_SETTINGS = {
     'update_title': bool,
     'update_tmux_title': bool,
     'use_preview_script': bool,
+    'viewmode': str,
     'vcs_aware': bool,
     'vcs_backend_bzr': str,
     'vcs_backend_git': str,
@@ -64,6 +65,16 @@ ALLOWED_SETTINGS = {
     'xterm_alt_key': bool,
     'clear_filters_on_dir_change': bool,
     'save_tabs_on_exit': bool,
+}
+
+ALLOWED_VALUES = {
+    'confirm_on_delete': ['always', 'multiple', 'never'],
+    'preview_images_method': ['w3m', 'iterm2'],
+    'vcs_backend_bzr': ['enabled', 'local', 'disabled'],
+    'vcs_backend_git': ['enabled', 'local', 'disabled'],
+    'vcs_backend_hg': ['enabled', 'local', 'disabled'],
+    'vcs_backend_svn': ['enabled', 'local', 'disabled'],
+    'viewmode': ['miller', 'multipane'],
 }
 
 DEFAULT_VALUES = {

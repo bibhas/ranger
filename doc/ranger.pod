@@ -228,6 +228,8 @@ The macro %rangerdir expands to the directory of ranger's python library, you
 can use it for something like this command:
   alias show_commands shell less %rangerdir/config/commands.py
 
+%confdir expands to the directory given by B<--confdir>.
+
 The macro %space expands to a space character. You can use it to add spaces to
 the end of a command when needed, while preventing editors to strip spaces off
 the end of the line automatically.
@@ -404,11 +406,14 @@ C<chmod 777 %s>, C<+ar> does C<chmod a+r %s>, C<-ow> does C<chmod o-w %s> etc.
 
 =item yy
 
-Copy (yank) the selection, like pressing Ctrl+C in modern GUI programs.
+Copy (yank) the selection, like pressing Ctrl+C in modern GUI programs.  (You
+can also type "ya" to add files to the copy buffer, "yr" to remove files again,
+or "yt" for toggling.)
 
 =item dd
 
-Cut the selection, like pressing Ctrl+X in modern GUI programs.
+Cut the selection, like pressing Ctrl+X in modern GUI programs.  (There are
+also "da", "dr" and "dt" shortcuts equivalent to "ya", "yr" and "yt".)
 
 =item pp
 
@@ -600,6 +605,10 @@ fly with the command B<:set option value>.  Examples:
 
  set column_ratios 1,2,3
  set show_hidden true
+
+Toggling options can be done with:
+
+ set show_hidden!
 
 The different types of settings and an example for each type:
 
@@ -915,6 +924,7 @@ ranger.  For your convenience, this is a list of the "public" commands including
  setintag tags option value
  setlocal [path=<path>] option value
  shell [-FLAGS] command
+ source filename
  terminal
  tmap key command
  touch filename
@@ -1264,6 +1274,14 @@ use C<path=~/dl$>.
 =item shell [-I<flags>] I<command>
 
 Run a shell command.  I<flags> are discussed in their own section.
+
+=item source I<filename>
+
+Reads commands from a file and executes them in the ranger console.
+
+This can be used to re-evaluate the rc.conf file after changing it:
+
+ map X chain shell vim -p %confdir/rc.conf %rangerdir/config/rc.conf; source %confdir/rc.conf
 
 =item terminal
 

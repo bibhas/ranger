@@ -133,7 +133,7 @@
 .\" ========================================================================
 .\"
 .IX Title "RANGER 1"
-.TH RANGER 1 "ranger-1.7.2" "02/24/2016" "ranger manual"
+.TH RANGER 1 "ranger-1.7.2" "04/15/2016" "ranger manual"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -332,6 +332,8 @@ The macro \f(CW%rangerdir\fR expands to the directory of ranger's python library
 can use it for something like this command:
   alias show_commands shell less \f(CW%rangerdir\fR/config/commands.py
 .PP
+\&\f(CW%confdir\fR expands to the directory given by \fB\-\-confdir\fR.
+.PP
 The macro \f(CW%space\fR expands to a space character. You can use it to add spaces to
 the end of a command when needed, while preventing editors to strip spaces off
 the end of the line automatically.
@@ -487,10 +489,13 @@ Change the permissions of the selection.  For example, \f(CW\*(C`777=\*(C'\fR is
 \&\f(CW\*(C`chmod 777 %s\*(C'\fR, \f(CW\*(C`+ar\*(C'\fR does \f(CW\*(C`chmod a+r %s\*(C'\fR, \f(CW\*(C`\-ow\*(C'\fR does \f(CW\*(C`chmod o\-w %s\*(C'\fR etc.
 .IP "yy" 14
 .IX Item "yy"
-Copy (yank) the selection, like pressing Ctrl+C in modern \s-1GUI\s0 programs.
+Copy (yank) the selection, like pressing Ctrl+C in modern \s-1GUI\s0 programs.  (You
+can also type \*(L"ya\*(R" to add files to the copy buffer, \*(L"yr\*(R" to remove files again,
+or \*(L"yt\*(R" for toggling.)
 .IP "dd" 14
 .IX Item "dd"
-Cut the selection, like pressing Ctrl+X in modern \s-1GUI\s0 programs.
+Cut the selection, like pressing Ctrl+X in modern \s-1GUI\s0 programs.  (There are
+also \*(L"da\*(R", \*(L"dr\*(R" and \*(L"dt\*(R" shortcuts equivalent to \*(L"ya\*(R", \*(L"yr\*(R" and \*(L"yt\*(R".)
 .IP "pp" 14
 .IX Item "pp"
 Paste the files which were previously copied or cut, like pressing Ctrl+V in
@@ -628,6 +633,12 @@ fly with the command \fB:set option value\fR.  Examples:
 .Vb 2
 \& set column_ratios 1,2,3
 \& set show_hidden true
+.Ve
+.PP
+Toggling options can be done with:
+.PP
+.Vb 1
+\& set show_hidden!
 .Ve
 .PP
 The different types of settings and an example for each type:
@@ -834,6 +845,9 @@ Sets the state for the version control backend. The possible values are:
 .IX Item "xterm_alt_key [bool]"
 Enable this if key combinations with the Alt Key don't work for you.
 (Especially on xterm)
+.IP "clear_filters_on_dir_change [bool]" 4
+.IX Item "clear_filters_on_dir_change [bool]"
+If set to 'true', persistent filters would be cleared upon leaving the directory
 .SH "COMMANDS"
 .IX Header "COMMANDS"
 You can enter the commands in the console which is opened by pressing \*(L":\*(R".
@@ -889,6 +903,7 @@ ranger.  For your convenience, this is a list of the \*(L"public\*(R" commands i
 \& setintag tags option value
 \& setlocal [path=<path>] option value
 \& shell [\-FLAGS] command
+\& source filename
 \& terminal
 \& tmap key command
 \& touch filename
@@ -1200,6 +1215,15 @@ use \f(CW\*(C`path=~/dl$\*(C'\fR.
 .IP "shell [\-\fIflags\fR] \fIcommand\fR" 2
 .IX Item "shell [-flags] command"
 Run a shell command.  \fIflags\fR are discussed in their own section.
+.IP "source \fIfilename\fR" 2
+.IX Item "source filename"
+Reads commands from a file and executes them in the ranger console.
+.Sp
+This can be used to re-evaluate the rc.conf file after changing it:
+.Sp
+.Vb 1
+\& map X chain shell vim \-p %confdir/rc.conf %rangerdir/config/rc.conf; source %confdir/rc.conf
+.Ve
 .IP "terminal" 2
 .IX Item "terminal"
 Spawns the \fIx\-terminal-emulator\fR starting in the current directory.
