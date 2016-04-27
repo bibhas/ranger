@@ -59,6 +59,17 @@ def main():
         arg.selectfile = os.path.abspath(arg.selectfile)
         arg.targets.insert(0, os.path.dirname(arg.selectfile))
 
+    fm = FM()
+    FileManagerAware._setup(fm)
+    load_settings(fm, arg.clean)
+    if fm.settings.save_tabs_on_exit and len(arg.targets) <= 1 and os.path.exists(fm.confpath('tabs')):
+        # if ranger is opened with no targets, put current directory as first tab
+        # otherwise, append the session tabs to it
+        if len(arg.targets) == 0:
+            arg.targets.insert(0, '.')
+
+        arg.targets = arg.targets + open(fm.confpath('tabs'), 'r').read().splitlines()
+
     targets = arg.targets or ['.']
     target = targets[0]
     if arg.targets:  # COMPAT
@@ -90,14 +101,6 @@ def main():
         fm = FM(paths=targets)
         FileManagerAware._setup(fm)
         load_settings(fm, arg.clean)
-
-        if fm.settings.save_tabs_on_exit and len(arg.targets) <= 1 and os.path.exists(fm.confpath('tabs')):
-            # if ranger is opened with no targets, put current directory as first tab
-            # otherwise, append the session tabs to it
-            if len(arg.targets) == 0:
-                arg.targets.insert(0, '.')
-
-            arg.targets = arg.targets + open(fm.confpath('tabs'), 'r').read().splitlines()
 
         if arg.list_unused_keys:
             from ranger.ext.keybinding_parser import (special_keys,
