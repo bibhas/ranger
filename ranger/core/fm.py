@@ -372,11 +372,12 @@ class FM(Actions, SignalDispatcher):
             self.bookmarks.remember(self.thisdir)
             self.bookmarks.save()
 
-            tabs_file_path = self.confpath('tabs')
-            if len(self.tabs) > 1:
-                # Don't save active tab since launching ranger in a directory changes the active tab
-                not_active_tabs = [self.tabs[i].path for i in self.tabs if i != self.current_tab]
-                open(tabs_file_path, 'w').write("\n".join(not_active_tabs))
-            elif os.path.exists(tabs_file_path):
-                os.remove(tabs_file_path)
+            if self.settings.save_tabs_on_exit:
+                tabs_file_path = self.confpath('tabs')
+                if len(self.tabs) > 1:
+                    # Don't save active tab since launching ranger in a directory changes the active tab
+                    not_active_tabs = [self.tabs[i].path for i in self.tabs if i != self.current_tab]
+                    open(tabs_file_path, 'w').write("\n".join(not_active_tabs))
+                elif os.path.exists(tabs_file_path):
+                    os.remove(tabs_file_path)
 
