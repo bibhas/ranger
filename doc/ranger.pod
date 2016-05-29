@@ -302,6 +302,9 @@ a function that ranger uses.  This allows you to change pretty much every part
 of ranger, but there is no guarantee that things will continue to work in
 future versions as the source code evolves.
 
+Adding new commands via a plugin as simple as specifying them like you would do
+in the I<commands.py>.
+
 There are some hooks that are specifically made for the use in plugins.  They
 are functions that start with hook_ and can be found throughout the code.
 
@@ -693,7 +696,7 @@ Display tags in all columns?
 
 Draw borders around columns?
 
-=item draw_progress_bar_in_statusbar [bool]
+=item draw_progress_bar_in_status_bar [bool]
 
 Draw a progress bar in the status bar which displays the average state of all
 currently running tasks which support progress bars?
@@ -716,6 +719,14 @@ this pattern will hide all files that start with a dot or end with a tilde.
 The delay that ranger idly waits for user input, in milliseconds, with a
 resolution of 100ms.  Lower delay reduces lag between directory updates but
 increases CPU load.
+
+=item line_numbers [string]
+
+Show line numbers in main column.  Possible values are:
+
+ false      turn the feature off
+ absolute   absolute line numbers for use with "<N>gg"
+ relative   relative line numbers for "<N>k" or "<N>j"
 
 =item max_console_history_size [integer, none]
 
@@ -1363,7 +1374,8 @@ and settings are defined here.
 =item commands.py
 
 A python module that defines commands which can be used in ranger's console by
-typing ":" or in the rc.conf file.
+typing ":" or in the rc.conf file.  Note that you can define commands in the
+same manner within plugins.
 
 =item commands_full.py
 

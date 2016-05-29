@@ -822,9 +822,13 @@ class Actions(FileManagerAware, SettingsAware):
         except:
             self.ui.browser.draw_info = []
             return
-        programs = self.rifle.list_commands([target.path], None)
-        programs = ['%s | %s' % program[0:2] for program in programs]
-        self.ui.browser.draw_info = programs
+        programs = [program for program in self.rifle.list_commands([target.path],
+                None)]
+        if programs:
+            num_digits = max((len(str(program[0])) for program in programs))
+            program_info = ['%s | %s' % (str(program[0]).rjust(num_digits),
+                    program[1]) for program in programs]
+            self.ui.browser.draw_info = program_info
 
     def hide_console_info(self):
         self.ui.browser.draw_info = False
