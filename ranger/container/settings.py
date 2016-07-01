@@ -88,6 +88,7 @@ DEFAULT_VALUES = {
     tuple: tuple([]),
 }
 
+
 class Settings(SignalDispatcher, FileManagerAware):
     def __init__(self):
         SignalDispatcher.__init__(self)
@@ -96,9 +97,9 @@ class Settings(SignalDispatcher, FileManagerAware):
         self.__dict__['_tagsettings'] = dict()
         self.__dict__['_settings'] = dict()
         for name in ALLOWED_SETTINGS:
-            self.signal_bind('setopt.'+name,
+            self.signal_bind('setopt.' + name,
                     self._sanitize, priority=1.0)
-            self.signal_bind('setopt.'+name,
+            self.signal_bind('setopt.' + name,
                     self._raw_set_with_signal, priority=0.2)
 
     def _sanitize(self, signal):
@@ -110,7 +111,7 @@ class Settings(SignalDispatcher, FileManagerAware):
             if not isinstance(value, list) or len(value) < 2:
                 signal.value = [1, 1]
             else:
-                signal.value = [int(i) if str(i).isdigit() else 1 \
+                signal.value = [int(i) if str(i).isdigit() else 1
                         for i in value]
 
         elif name == 'colorscheme':
@@ -135,14 +136,14 @@ class Settings(SignalDispatcher, FileManagerAware):
         if name not in self._settings:
             previous = None
         else:
-            previous=self._settings[name]
+            previous = self._settings[name]
         assert self._check_type(name, value)
         assert not (tags and path), "Can't set a setting for path and tag " \
             "at the same time!"
         kws = dict(setting=name, value=value, previous=previous,
                 path=path, tags=tags, fm=self.fm)
         self.signal_emit('setopt', **kws)
-        self.signal_emit('setopt.'+name, **kws)
+        self.signal_emit('setopt.' + name, **kws)
 
     def get(self, name, path=None):
         assert name in ALLOWED_SETTINGS, "No such setting: {0}!".format(name)
@@ -151,7 +152,7 @@ class Settings(SignalDispatcher, FileManagerAware):
         else:
             try:
                 localpath = self.fm.thisdir.path
-            except:
+            except Exception:
                 localpath = path
 
         if localpath:
@@ -201,7 +202,6 @@ class Settings(SignalDispatcher, FileManagerAware):
             else:
                 return (typ, )
 
-
     def _check_type(self, name, value):
         typ = ALLOWED_SETTINGS[name]
         if isfunction(typ):
@@ -220,10 +220,10 @@ class Settings(SignalDispatcher, FileManagerAware):
 
     def _raw_set(self, name, value, path=None, tags=None):
         if path:
-            if not path in self._localsettings:
+            if path not in self._localsettings:
                 try:
                     regex = re.compile(path)
-                except:
+                except Exception:
                     # Bad regular expression
                     return
                 self._localregexes[path] = regex
@@ -232,7 +232,7 @@ class Settings(SignalDispatcher, FileManagerAware):
 
             # make sure name is in _settings, so __iter__ runs through
             # local settings too.
-            if not name in self._settings:
+            if name not in self._settings:
                 type_ = self.types_of(name)[0]
                 value = DEFAULT_VALUES[type_]
                 self._settings[name] = value

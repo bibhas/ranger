@@ -7,11 +7,12 @@ import curses
 import re
 from collections import deque
 
-from . import Widget
+from ranger.gui.widgets import Widget
 from ranger.ext.direction import Direction
 from ranger.ext.widestring import uwid, WideString
 from ranger.container.history import History, HistoryEmptyException
 import ranger
+
 
 class Console(Widget):
     visible = False
@@ -38,7 +39,7 @@ class Console(Widget):
             self.historypath = self.fm.confpath('history')
             try:
                 f = open(self.historypath, 'r')
-            except:
+            except Exception:
                 pass
             else:
                 for line in f:
@@ -67,7 +68,7 @@ class Console(Widget):
         if self.historypath:
             try:
                 f = open(self.historypath, 'w')
-            except:
+            except Exception:
                 pass
             else:
                 for entry in self.history_backup:
@@ -99,13 +100,13 @@ class Console(Widget):
         if self.question_queue:
             try:
                 move(self.y, len(self.question_queue[0][0]))
-            except:
+            except Exception:
                 pass
         else:
             try:
                 pos = uwid(self.line[0:self.pos]) + len(self.prompt)
-                move(self.y, self.x + min(self.wid-1, pos))
-            except:
+                move(self.y, self.x + min(self.wid - 1, pos))
+            except Exception:
                 pass
 
     def open(self, string='', prompt=None, position=None):
@@ -118,7 +119,7 @@ class Console(Widget):
         if self.last_cursor_mode is None:
             try:
                 self.last_cursor_mode = curses.curs_set(1)
-            except:
+            except Exception:
                 pass
         self.allow_close = False
         self.tab_deque = None
@@ -154,7 +155,7 @@ class Console(Widget):
         if self.last_cursor_mode is not None:
             try:
                 curses.curs_set(self.last_cursor_mode)
-            except:
+            except Exception:
                 pass
             self.last_cursor_mode = None
         self.fm.hide_console_info()
@@ -286,6 +287,72 @@ class Console(Widget):
                         current=upos)
                 self.pos = len(''.join(uc[:newupos]).encode('utf-8', 'ignore'))
 
+    def move_word(self, **keywords):
+        direction = Direction(keywords)
+        if direction.horizontal():
+            self.pos = self.move_by_word(self.line, self.pos, direction.right())
+            self.on_line_change()
+
+    @staticmethod
+    def move_by_word(line, position, direction):
+        """
+        Returns a new position by moving word-wise in the line
+
+        >>> import sys
+        >>> if sys.version_info < (3, ):
+        ...     # Didn't get the unicode test to work on python2, even though
+        ...     # it works fine in ranger, even with unicode input...
+        ...     line = "ohai world,  this is dog"
+        ... else:
+        ...     line = "\u30AA\u30CF\u30E8\u30A6 world,  this is dog"
+        >>> Console.move_by_word(line, 0, -1)
+        0
+        >>> Console.move_by_word(line, 0, 1)
+        5
+        >>> Console.move_by_word(line, 2, -1)
+        0
+        >>> Console.move_by_word(line, 2, 1)
+        5
+        >>> Console.move_by_word(line, 15, -2)
+        5
+        >>> Console.move_by_word(line, 15, 2)
+        21
+        >>> Console.move_by_word(line, 24, -1)
+        21
+        >>> Console.move_by_word(line, 24, 1)
+        24
+        """
+        word_beginnings = []
+        seen_whitespace = True
+        current_word = None
+        cursor_inside_word = False
+
+        # Scan the line for word boundaries and determine position of cursor
+        for i, char in enumerate(line):
+            if i == position:
+                current_word = len(word_beginnings)
+                if not seen_whitespace:
+                    cursor_inside_word = True
+            if char == " ":
+                seen_whitespace = True
+            elif seen_whitespace:
+                seen_whitespace = False
+                word_beginnings.append(i)
+        word_beginnings.append(len(line))
+
+        # Handle corner cases:
+        if current_word is None:
+            current_word = len(word_beginnings)
+        if direction > 0 and cursor_inside_word:
+            current_word -= 1
+        if direction < 0 and position == len(line):
+            current_word -= 1
+
+        new_word = current_word + direction
+        new_word = max(0, min(len(word_beginnings) - 1, new_word))
+
+        return word_beginnings[new_word]
+
     def delete_rest(self, direction):
         self.tab_deque = None
         if direction > 0:
@@ -346,7 +413,7 @@ class Console(Widget):
             upos = len(self.line[:self.pos].decode('utf-8', 'ignore')) + mod
             left_part = ''.join(uc[:upos]).encode('utf-8', 'ignore')
             self.pos = len(left_part)
-            self.line = left_part + ''.join(uc[upos+1:]).encode('utf-8', 'ignore')
+            self.line = left_part + ''.join(uc[upos + 1:]).encode('utf-8', 'ignore')
         self.on_line_change()
 
     def execute(self, cmd=None):
@@ -375,7 +442,7 @@ class Console(Widget):
             if not quiet:
                 error = "Command not found: `%s'" % self.line.split()[0]
                 self.fm.notify(error, bad=True)
-        except:
+        except Exception:
             return None
         else:
             return command_class(self.line)
@@ -402,7 +469,7 @@ class Console(Widget):
                 self.pos = len(tab_result)
                 self.on_line_change()
 
-            elif tab_result == None:
+            elif tab_result is None:
                 pass
 
             elif hasattr(tab_result, '__iter__'):
@@ -441,3 +508,7 @@ class Console(Widget):
         choice is used when the user presses <ESC>.
         """
         self.question_queue.append((text, callback, choices))
+
+if __name__ == '__main__':
+    import doctest
+    doctest.testmod()

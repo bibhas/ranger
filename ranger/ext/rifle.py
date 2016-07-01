@@ -92,7 +92,7 @@ def _is_terminal():
         os.ttyname(0)
         os.ttyname(1)
         os.ttyname(2)
-    except:
+    except Exception:
         return False
     return True
 
@@ -169,7 +169,7 @@ class Rifle(object):
                 command = command.strip()
                 self.rules.append((command, tests))
             except Exception as e:
-                self.hook_logger("Syntax error in %s line %d (%s)" % \
+                self.hook_logger("Syntax error in %s line %d (%s)" %
                     (config_file, lineno, str(e)))
         f.close()
 
@@ -354,6 +354,12 @@ class Rifle(object):
                         term = os.environ['TERM']
                         if term.startswith('rxvt-unicode'):
                             term = 'urxvt'
+                        elif term.startswith('rxvt-'):
+                            # Sometimes urxvt calls itself "rxvt-256color"
+                            if 'rxvt' in get_executables():
+                                term = 'rxvt'
+                            else:
+                                term = 'urxvt'
                         if term not in get_executables():
                             self.hook_logger("Can not determine terminal command.  "
                                 "Please set $TERMCMD manually.")
@@ -391,7 +397,6 @@ def main():
             pass
         else:
             conf_path = os.path.join(ranger.__path__[0], "config", "rifle.conf")
-
 
     # Evaluate arguments
     from optparse import OptionParser
@@ -441,8 +446,6 @@ def main():
             if result == ASK_COMMAND:
                 # TODO: implement interactive asking for file type?
                 print("Unknown file type: %s" % rifle._get_mimetype(positional[0]))
-
-
 
 if __name__ == '__main__':
     if 'RANGER_DOCTEST' in os.environ:
